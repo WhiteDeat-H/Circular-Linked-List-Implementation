@@ -1,0 +1,119 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define a struct to represent a node in the circular linked list
+typedef struct Node {
+    int value;    // The value stored in the node
+    struct Node* next; // A pointer to the next node in the list
+} Node;
+
+// Define a struct to represent the circular linked list
+typedef struct {
+    Node* head;   // A pointer to the head node
+    Node* tail;   // A pointer to the tail node
+} CircularLinkedList;
+
+// Initialize a new circular linked list
+void initCircularLinkedList(CircularLinkedList* list) {
+    list->head = NULL;
+    list->tail = NULL;
+}
+
+// Add a new node to the end of the list
+void addNode(CircularLinkedList* list, int value) {
+    Node* newNode = (Node*)malloc(sizeof(Node)); // Allocate memory for the new node
+    newNode->value = value;                      // Set the value of the new node
+    newNode->next = NULL;                       // Set the next pointer of the new node to NULL
+
+    if (list->head == NULL) {                    // If the list is empty
+        list->head = newNode;                    // The new node is the head and tail
+        list->tail = newNode;
+        newNode->next = newNode;                 // circular link
+    } else {
+        list->tail->next = newNode;              // Add the new node after the tail
+        list->tail = newNode;
+        newNode->next = list->head;              // circular link
+    }
+}
+
+// Search for a node with a given value in the list
+int containsNode(CircularLinkedList* list, int searchValue) {
+    Node* currentNode = list->head;
+
+    if (list->head == NULL) {
+        return 0;
+    } else {
+        do {
+            if (currentNode->value == searchValue) {
+                return 1;
+            }
+            currentNode = currentNode->next;
+        } while (currentNode!= list->head);
+        return 0;
+    }
+}
+
+// Delete a node with a given value from the list
+void deleteNode(CircularLinkedList* list, int valueToDelete) {
+    Node* currentNode = list->head;
+
+    if (list->head == NULL) {
+        return;
+    }
+
+    do {
+        Node* nextNode = currentNode->next;
+        if (nextNode->value == valueToDelete) {
+            if (list->head == list->tail) {
+                list->head = NULL;
+                list->tail = NULL;
+            } else {
+                currentNode->next = nextNode->next;
+                if (nextNode == list->tail) {
+                    list->tail = currentNode;
+                }
+            }
+            free(nextNode);
+            return;
+        }
+        currentNode = currentNode->next;
+    } while (currentNode!= list->head);
+}
+
+// Print the values of all nodes in the list
+void printList(CircularLinkedList* list) {
+    Node* currentNode = list->head;
+
+    if (list->head == NULL) {
+        printf("List is empty\n");
+    } else {
+        do {
+            printf("%d ", currentNode->value);
+            currentNode = currentNode->next;
+        } while (currentNode!= list->head);
+        printf("\n");
+    }
+}
+
+// Main function
+int main() {
+    CircularLinkedList list;
+    initCircularLinkedList(&list);
+
+    addNode(&list, 1);
+    addNode(&list, 2);
+    addNode(&list, 3);
+    addNode(&list, 4);
+    addNode(&list, 5);
+
+    printList(&list);
+
+    printf("Contains 3: %d\n", containsNode(&list, 3));
+    printf("Contains 6: %d\n", containsNode(&list, 6));
+
+    deleteNode(&list, 3);
+
+    printList(&list);
+
+    return 0;
+}
